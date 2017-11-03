@@ -8,15 +8,15 @@ namespace EcTowerCookEastAlert.Tests
 {
     public class VerifyNoNANsTests
     {
-        string fileWithNAN = @"Assets/CookEastEcTower_Flux_Raw_2017_10_26_0000.dat";
-        string fileWithNANOkLocations = @"Assets/CookEastEcTower_Flux_Raw_2017_10_27_1330.dat";
-        string fileWithBadDataAtSecondRow = @"Assets/CookEastEcTower_Flux_Raw_2017_10_27_1330_2linesBadCO2_sig.dat";
+        string fileWithBadNAN = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_badNAN.dat";
+        string fileWithNANOkLocations = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_okNAN.dat";
+        string fileWithBadDataAtSecondRow = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat";
 
         [Fact]
         public void Run_HasNan_ThrowsException()
         {
             // Arrange
-            var s = new System.IO.FileStream(fileWithNAN, System.IO.FileMode.Open);
+            var s = new System.IO.FileStream(fileWithBadNAN, System.IO.FileMode.Open);
             var t = new TraceWriterStub(TraceLevel.Verbose);
 
             // Act
@@ -29,7 +29,7 @@ namespace EcTowerCookEastAlert.Tests
 
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
-            Assert.Equal("CookEastEcTower_Flux_Raw_2017_10_26_0000.dat: File contains NAN", ex.Message);
+            Assert.Equal("CookEastEcTower_Flux_Raw_2017_11_03_1300_badNAN.dat: File contains NAN", ex.Message);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace EcTowerCookEastAlert.Tests
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
             // Assert
-            Assert.Equal("CookEastEcTower_Flux_Raw_2017_10_27_1330_2linesBadCO2_sig.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.3260049)", ex.Message);
+            Assert.Equal("CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689)", ex.Message);
         }
     }
 

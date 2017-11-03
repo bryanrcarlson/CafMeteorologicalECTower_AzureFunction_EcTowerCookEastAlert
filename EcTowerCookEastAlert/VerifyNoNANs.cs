@@ -19,14 +19,13 @@ namespace EcTowerCookEastAlert
             // Column numbers of csv file
             int COL_NUM_CO2_sig_strgth_Min = 63;
             int COL_NUM_H2O_sig_strgth_Min = 64;
-            int COL_NUM_batt_volt_Avg = 210;
-            int COL_NUM_sonic_samples_Tot = 125;
-            int COL_NUM_CO2_samples_Tot = 152;
-            int COL_NUM_H2O_samples_Tot = 153;
+            int COL_NUM_batt_volt_Avg = 240;
+            int COL_NUM_sonic_samples_Tot = 155;
+            int COL_NUM_CO2_samples_Tot = 182;
+            int COL_NUM_H2O_samples_Tot = 183;
             int COL_NUM_Precipitation_Tot = 73;
-            int COL_NUM_door_is_open_Hst = 208;
-
-            int[] COL_with_NAN_OK = { 83, 84 };
+            int COL_NUM_door_is_open_Hst = 238;
+            int[] COL_with_NAN_OK = { 83, 84, 95, 96, 97, 98, 99, 100 };
 
             log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {inBlob.Length} Bytes");
             
@@ -49,9 +48,9 @@ namespace EcTowerCookEastAlert
                     string[] values = line.Split(',');
 
                     // Make sure length of data is intended
-                    if (values.Length != 215)
+                    if (values.Length != 245)
                     {
-                        throw new Exception($"{Path.GetFileName(name)}: Files does not contain 215 values ({values.Length})");
+                        throw new Exception($"{Path.GetFileName(name)}: Files does not contain 245 values ({values.Length})");
                     }
 
                     // Check for NAN where they shouldn't be
