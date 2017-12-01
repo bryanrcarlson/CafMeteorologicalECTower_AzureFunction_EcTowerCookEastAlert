@@ -57,7 +57,7 @@ namespace EcTowerCookEastAlert.Tests
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
             // Assert
-            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689).", ex.Message);
+            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat: CO2_sig_strgth_Min < 0.8 (0.689).", ex.Message);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace EcTowerCookEastAlert.Tests
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
             // Assert
-            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: File contains NAN.[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689).", ex.Message);
+            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: File contains NAN.[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: CO2_sig_strgth_Min < 0.8 (0.689).", ex.Message);
         }
     }
 

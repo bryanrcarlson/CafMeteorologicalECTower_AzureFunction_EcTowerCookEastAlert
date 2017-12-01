@@ -34,7 +34,7 @@ namespace EcTowerCookEastAlert
             const string WARNING = "[WARNING]";
             const string ERROR = "[ERROR]";
 
-            log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {inBlob.Length} Bytes");
+            //log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {inBlob.Length} Bytes");
             
             // Ignore files that are not .dat files
             if (Path.GetExtension(name) != ".dat") return;
@@ -84,31 +84,39 @@ namespace EcTowerCookEastAlert
                     double door_is_open_Hst =   Convert.ToDouble(values[COL_NUM_door_is_open_Hst]);
 
                     if (CO2_sig_strgth_Min < 0.8 && Precipitation_Tot == 0)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning ({CO2_sig_strgth_Min}).");
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_sig_strgth_Min < 0.8 ({CO2_sig_strgth_Min}).");
                         //throw new Exception($"{Path.GetFileName(name)}: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning ({CO2_sig_strgth_Min})");
 
                     if (H2O_sig_strgth_Min < 0.8 && Precipitation_Tot == 0)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_sig_strgth_Min < 0.8, IRGA needs cleaning ({H2O_sig_strgth_Min}).");
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_sig_strgth_Min < 0.8 ({H2O_sig_strgth_Min}).");
                         //throw new Exception($"{Path.GetFileName(name)}: H2O_sig_strgth_Min < 0.8, IRGA needs cleaning ({H2O_sig_strgth_Min})");
 
-                    if (batt_volt_Avg < 11)
-                        alertString.Append($"{ERROR} {Path.GetFileName(name)}: batt_volt_Avg < 11, Solar panels blocked/batteries not recharging ({batt_volt_Avg}).");
+                    if (batt_volt_Avg < 12.5 && batt_volt_Avg >= 12.1)
+                        alertString.Append($"{INFO} {Path.GetFileName(name)}: batt_volt_Avg low ({batt_volt_Avg}).");
+                    
+
+                    if (batt_volt_Avg < 12.1 && batt_volt_Avg >= 11.6)
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: batt_volt_Avg low ({batt_volt_Avg}).");
+                    
+
+                    if (batt_volt_Avg < 11.6)
+                        alertString.Append($"{ERROR} {Path.GetFileName(name)}: batt_volt_Avg < 11.6 ({batt_volt_Avg}).");
                         //throw new Exception($"{Path.GetFileName(name)}: batt_volt_Avg < 11, Solar panels blocked/batteries not recharging ({batt_volt_Avg})");
 
                     if (sonic_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: sonic_samples_Tot < 13500, Too many scans being skipped ({sonic_samples_Tot}).");
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: sonic_samples_Tot < 13500 ({sonic_samples_Tot}).");
                         //throw new Exception($"{Path.GetFileName(name)}: sonic_samples_Tot < 13500, Too many scans being skipped ({sonic_samples_Tot})");
 
                     if (CO2_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_samples_Tot < 13500, Too many scans being skipped ({CO2_samples_Tot}).");
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_samples_Tot < 13500 ({CO2_samples_Tot}).");
                         //throw new Exception($"{Path.GetFileName(name)}: CO2_samples_Tot < 13500, Too many scans being skipped ({CO2_samples_Tot})");
 
                     if (H2O_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_samples_Tot < 13500, Too many scans being skipped ({H2O_samples_Tot}).");
+                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_samples_Tot < 13500 ({H2O_samples_Tot}).");
                         //throw new Exception($"{Path.GetFileName(name)}: H2O_samples_Tot < 13500, Too many scans being skipped ({H2O_samples_Tot})");
 
                     if (door_is_open_Hst > 0)
-                        alertString.Append($"{INFO} {Path.GetFileName(name)}: door_is_open_Hst > 0, Door to enclosure open ({door_is_open_Hst}).");
+                        alertString.Append($"{INFO} {Path.GetFileName(name)}: door_is_open_Hst > 0 ({door_is_open_Hst}).");
                         //throw new Exception($"{Path.GetFileName(name)}: door_is_open_Hst > 0, Door to enclosure open ({door_is_open_Hst})");
                 }
             }
