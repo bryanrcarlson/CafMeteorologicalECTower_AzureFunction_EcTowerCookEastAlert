@@ -23,6 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -31,15 +34,6 @@
     </None>
     <None Update="Assets\CookEastEcTower_Flux_Raw_2017_11_03_1300_okNAN.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\xCookEastEcTower_Flux_Raw_2017_10_26_0000.dat">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\xCookEastEcTower_Flux_Raw_2017_10_27_1330.dat">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\xCookEastEcTower_Flux_Raw_2017_10_27_1330_2linesBadCO2_sig.dat">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

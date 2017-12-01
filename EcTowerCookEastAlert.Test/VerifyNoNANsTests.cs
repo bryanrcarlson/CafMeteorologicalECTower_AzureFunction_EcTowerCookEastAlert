@@ -11,6 +11,7 @@ namespace EcTowerCookEastAlert.Tests
         string fileWithBadNAN = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_badNAN.dat";
         string fileWithNANOkLocations = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_okNAN.dat";
         string fileWithBadDataAtSecondRow = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat";
+        string fileWithBadDataAtSecondRowAndNAN = @"Assets/CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat";
 
         [Fact]
         public void Run_HasNan_ThrowsException()
@@ -29,7 +30,7 @@ namespace EcTowerCookEastAlert.Tests
 
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
-            Assert.Equal("CookEastEcTower_Flux_Raw_2017_11_03_1300_badNAN.dat: File contains NAN", ex.Message);
+            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_badNAN.dat: File contains NAN.", ex.Message);
         }
 
         [Fact]
@@ -56,7 +57,21 @@ namespace EcTowerCookEastAlert.Tests
             Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
 
             // Assert
-            Assert.Equal("CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689)", ex.Message);
+            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689).", ex.Message);
+        }
+
+        [Fact]
+        public void Run_HasBadValueAtSecondRowAndNAN_ThrowsException()
+        {
+            // Arrange
+            var s = new System.IO.FileStream(fileWithBadDataAtSecondRowAndNAN, System.IO.FileMode.Open);
+            var t = new TraceWriterStub(TraceLevel.Verbose);
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => VerifyNoNANs.Run(s, s.Name, t));
+
+            // Assert
+            Assert.Equal("[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: File contains NAN.[WARNING] CookEastEcTower_Flux_Raw_2017_11_03_1300_2linesBadCO2BadNAN.dat: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning (0.689).", ex.Message);
         }
     }
 
