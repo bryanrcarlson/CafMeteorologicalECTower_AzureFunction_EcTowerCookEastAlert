@@ -4,17 +4,20 @@ using Microsoft.Azure.WebJobs.Host;
 using System;
 using System.Linq;
 using System.Text;
+using TweetSharp;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Configuration;
+using System.Collections.Generic;
 
-namespace EcTowerCookEastAlert
+namespace Nsar.EcTowerCookEastAlert
 {
     public static class VerifyNoNANs
     {
-        
-
         [FunctionName("VerifyNoNANs")]
         public static void Run(
             [BlobTrigger("ectower-cookeast/raw/Flux/{name}", 
-            Connection = "CookEastFluxConnectionString")] Stream inBlob, 
+            Connection = "CookEastFluxConnectionString")] System.IO.Stream inBlob, 
             string name, 
             TraceWriter log)
         {
@@ -33,13 +36,12 @@ namespace EcTowerCookEastAlert
             const string INFO = "[INFO]";
             const string WARNING = "[WARNING]";
             const string ERROR = "[ERROR]";
-
-            //log.Info($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {inBlob.Length} Bytes");
             
             // Ignore files that are not .dat files
             if (Path.GetExtension(name) != ".dat") return;
 
-            StringBuilder alertString = new StringBuilder();
+            //StringBuilder alertString = new StringBuilder();
+            List<IAlertMessage> alerts = new List<IAlertMessage>();
 
             using (var sr = new StreamReader(inBlob, true))
             {
@@ -60,7 +62,10 @@ namespace EcTowerCookEastAlert
                     if (values.Length != 245)
                     {
                         //throw new Exception($"{Path.GetFileName(name)}: Files does not contain 245 values ({values.Length})");
-                        alertString.Append($"{ERROR} {Path.GetFileName(name)}: Files does not contain 245 values ({values.Length}).");
+                        //alertString.Append($"{ERROR} {Path.GetFileName(name)}: Files does not contain 245 values ({values.Length}).");
+                        alerts.Add(
+                            new AlertError(Path.GetFileName(name), 
+                            $"Files does not contain 245 values ({values.Length})"));
                     }
 
                     // Check for NAN where they shouldn't be
@@ -69,7 +74,10 @@ namespace EcTowerCookEastAlert
                         if (values[i] == "\"NAN\"" && !COL_with_NAN_OK.Contains(i))
                         {
                             //throw new Exception($"{Path.GetFileName(name)}: File contains NAN");
-                            alertString.Append($"{WARNING} {Path.GetFileName(name)}: File contains NAN.");
+                            //alertString.Append($"{WARNING} {Path.GetFileName(name)}: File contains NAN.");
+                            alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"File contains NAN"));
                         }
                     }
 
@@ -84,45 +92,102 @@ namespace EcTowerCookEastAlert
                     double door_is_open_Hst =   Convert.ToDouble(values[COL_NUM_door_is_open_Hst]);
 
                     if (CO2_sig_strgth_Min < 0.8 && Precipitation_Tot == 0)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_sig_strgth_Min < 0.8 ({CO2_sig_strgth_Min}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: CO2_sig_strgth_Min < 0.8, IRGA needs cleaning ({CO2_sig_strgth_Min})");
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"CO2_sig_strgth_Min < 0.8 ({CO2_sig_strgth_Min})"));
 
                     if (H2O_sig_strgth_Min < 0.8 && Precipitation_Tot == 0)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_sig_strgth_Min < 0.8 ({H2O_sig_strgth_Min}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: H2O_sig_strgth_Min < 0.8, IRGA needs cleaning ({H2O_sig_strgth_Min})");
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"H2O_sig_strgth_Min < 0.8 ({H2O_sig_strgth_Min})"));
 
                     if (batt_volt_Avg < 12.5 && batt_volt_Avg >= 12.1)
-                        alertString.Append($"{INFO} {Path.GetFileName(name)}: batt_volt_Avg low ({batt_volt_Avg}).");
-                    
+                        alerts.Add(
+                                new AlertInformation(Path.GetFileName(name),
+                                $"batt_volt_Avg low ({batt_volt_Avg})"));
 
                     if (batt_volt_Avg < 12.1 && batt_volt_Avg >= 11.6)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: batt_volt_Avg low ({batt_volt_Avg}).");
-                    
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"batt_volt_Avg low ({batt_volt_Avg})"));
 
                     if (batt_volt_Avg < 11.6)
-                        alertString.Append($"{ERROR} {Path.GetFileName(name)}: batt_volt_Avg < 11.6 ({batt_volt_Avg}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: batt_volt_Avg < 11, Solar panels blocked/batteries not recharging ({batt_volt_Avg})");
+                        alerts.Add(
+                                new AlertError(Path.GetFileName(name),
+                                $"batt_volt_Avg < 11.6 ({batt_volt_Avg})"));
 
                     if (sonic_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: sonic_samples_Tot < 13500 ({sonic_samples_Tot}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: sonic_samples_Tot < 13500, Too many scans being skipped ({sonic_samples_Tot})");
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"sonic_samples_Tot < 13500 ({sonic_samples_Tot})"));
 
                     if (CO2_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: CO2_samples_Tot < 13500 ({CO2_samples_Tot}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: CO2_samples_Tot < 13500, Too many scans being skipped ({CO2_samples_Tot})");
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"CO2_samples_Tot < 13500 ({CO2_samples_Tot})"));
 
                     if (H2O_samples_Tot < 13500)
-                        alertString.Append($"{WARNING} {Path.GetFileName(name)}: H2O_samples_Tot < 13500 ({H2O_samples_Tot}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: H2O_samples_Tot < 13500, Too many scans being skipped ({H2O_samples_Tot})");
+                        alerts.Add(
+                                new AlertWarning(Path.GetFileName(name),
+                                $"H2O_samples_Tot < 13500 ({H2O_samples_Tot})"));
 
                     if (door_is_open_Hst > 0)
-                        alertString.Append($"{INFO} {Path.GetFileName(name)}: door_is_open_Hst > 0 ({door_is_open_Hst}).");
-                        //throw new Exception($"{Path.GetFileName(name)}: door_is_open_Hst > 0, Door to enclosure open ({door_is_open_Hst})");
+                        alerts.Add(
+                                new AlertInformation(Path.GetFileName(name),
+                                $"door_is_open_Hst > 0 ({door_is_open_Hst})"));
                 }
             }
 
-            if (alertString.Length > 0)
-                throw new Exception(alertString.ToString());
+            if (alerts.Count > 0)
+            {
+                StringBuilder alertString = new StringBuilder();
+                foreach(IAlertMessage alert in alerts)
+                {
+                    alertString.AppendLine(alert.ToString());
+                }
+                // Remove newline from end
+                alertString.Length = alertString.Length-2;
+
+                //log.Trace(new TraceEvent(TraceLevel.Off, alertString.ToString()));
+                LogAlert(alertString.ToString(), log);
+
+                TweetAlert(alertString.ToString());
+
+                //authenticating with Twitter
+                //var _consumerKey = ConfigurationManager.AppSettings["TwitterConsumerKey"];
+                //var _consumerSecret = ConfigurationManager.AppSettings["TwitterConsumerSecret"];
+                //var _accessToken = ConfigurationManager.AppSettings["TwitterAccessToken"];
+                //var _accessTokenSecret = ConfigurationManager.AppSettings["TwitterAccessTokenSecret"];
+                //var service = new TwitterService(_consumerKey, _consumerSecret);
+                //service.AuthenticateWith(_accessToken, _accessTokenSecret);
+                //
+                //TwitterStatus result = service.SendTweet(new SendTweetOptions
+                //{
+                //    Status = alertString.ToString()
+                //});
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private static void LogAlert(string alertMessage, TraceWriter log)
+        {
+            log.Trace(new TraceEvent(TraceLevel.Off, alertMessage));
+        }
+
+        [Conditional("RELEASE")]
+        private static void TweetAlert(string alertMessage)
+        {
+            var _consumerKey = ConfigurationManager.AppSettings["TwitterConsumerKey"];
+            var _consumerSecret = ConfigurationManager.AppSettings["TwitterConsumerSecret"];
+            var _accessToken = ConfigurationManager.AppSettings["TwitterAccessToken"];
+            var _accessTokenSecret = ConfigurationManager.AppSettings["TwitterAccessTokenSecret"];
+            var service = new TwitterService(_consumerKey, _consumerSecret);
+            service.AuthenticateWith(_accessToken, _accessTokenSecret);
+
+            TwitterStatus result = service.SendTweet(new SendTweetOptions
+            {
+                Status = alertMessage
+            });
         }
     }
 }
