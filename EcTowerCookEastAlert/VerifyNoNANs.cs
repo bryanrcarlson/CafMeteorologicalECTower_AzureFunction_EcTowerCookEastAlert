@@ -101,15 +101,15 @@ namespace Nsar.EcTowerCookEastAlert
                                 new AlertWarning(Path.GetFileName(name),
                                 $"H2O_sig_strgth_Min < 0.8 ({H2O_sig_strgth_Min})"));
 
-                    if (batt_volt_Avg < 12.5 && batt_volt_Avg >= 12.1)
-                        alerts.Add(
-                                new AlertInformation(Path.GetFileName(name),
-                                $"batt_volt_Avg low ({batt_volt_Avg})"));
-
-                    if (batt_volt_Avg < 12.1 && batt_volt_Avg >= 11.6)
-                        alerts.Add(
-                                new AlertWarning(Path.GetFileName(name),
-                                $"batt_volt_Avg low ({batt_volt_Avg})"));
+                    //if (batt_volt_Avg < 12.5 && batt_volt_Avg >= 12.1)
+                    //    alerts.Add(
+                    //            new AlertInformation(Path.GetFileName(name),
+                    //            $"batt_volt_Avg low ({batt_volt_Avg})"));
+                    //
+                    //if (batt_volt_Avg < 12.1 && batt_volt_Avg >= 11.6)
+                    //    alerts.Add(
+                    //            new AlertWarning(Path.GetFileName(name),
+                    //            $"batt_volt_Avg low ({batt_volt_Avg})"));
 
                     if (batt_volt_Avg < 11.6)
                         alerts.Add(
